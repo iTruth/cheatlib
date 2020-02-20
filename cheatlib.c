@@ -1,6 +1,4 @@
-#include <memoryapi.h>
 #include <windows.h>
-#include <tlhelp32.h>
 #include <assert.h>
 #include <string.h>
 #include "beaengine/BeaEngine.h"
