@@ -154,9 +154,11 @@ static PCheatLibAsmEncodeInfo EncodeAsm(const char *pszAsmCode, LPVOID pAddress)
 
 static void FreeCodeInjectionInfo(PCodeInjectionInfo ptInfo)
 {
-	assert(ptInfo != NULL && ptInfo->pVirAddr != NULL);
+	assert(ptInfo != NULL);
 	// 释放代码空间
-	VirtualFreeEx(ptInfo->hProcess, ptInfo->pVirAddr, 0, MEM_RELEASE);
+	if(ptInfo->pVirAddr != NULL){
+		VirtualFreeEx(ptInfo->hProcess, ptInfo->pVirAddr, 0, MEM_RELEASE);
+	}
 	FreeRequiredAsmInfo(ptInfo->ptRequiredAsmInfo);
 	free(ptInfo);
 	ptInfo = NULL;
@@ -164,13 +166,29 @@ static void FreeCodeInjectionInfo(PCodeInjectionInfo ptInfo)
 
 PCodeInjectionInfo CodeInjection(HANDLE hProcess, LPVOID pAddress, const char *pszAsmCode)
 {
-	assert(pszAsmCode != NULL);
 	// 在pAddress处收集必要的信息
 	PCheatLibRequiredAsmInfo ptRequiredAsmInfo = GetRequiredAsmInfo(hProcess, pAddress);
 	PCodeInjectionInfo ptCodeInjectionInfo = (PCodeInjectionInfo)malloc(sizeof(CodeInjectionInfo));
 	ptCodeInjectionInfo->hProcess = hProcess;
 	ptCodeInjectionInfo->pOrigAddr = pAddress;
 	ptCodeInjectionInfo->ptRequiredAsmInfo = ptRequiredAsmInfo;
+	DWORD WrittenLen = 0;
+
+	// 如果pszAsmCode是空字符串或NULL就使用nop填充该指令
+	if(pszAsmCode == NULL || strlen(pszAsmCode) == 0){
+		ptCodeInjectionInfo->pVirAddr = NULL;
+		BYTE *nopCode = (BYTE*)malloc(sizeof(BYTE)*ptRequiredAsmInfo->iFirstCmdSize);
+		memset(nopCode, 0x90, ptRequiredAsmInfo->iFirstCmdSize);
+		// 写入空指令
+		WriteProcessMemory(hProcess,
+				(LPVOID)pAddress,
+				nopCode,
+				ptRequiredAsmInfo->iFirstCmdSize,
+				&WrittenLen);
+		free(nopCode);
+		nopCode = NULL;
+		return ptCodeInjectionInfo;
+	}
 
 	// 开始构造我们自己的代码
 	// 我们不知道pszAsmCode中的汇编指令在函数申请的空间中会生成多少机器码
@@ -199,7 +217,6 @@ PCodeInjectionInfo CodeInjection(HANDLE hProcess, LPVOID pAddress, const char *p
 	JmpBuilder(exeCode+ptAsmCodeInfo->nOpCodeSize,
 			(DWORD)pAddress+ptRequiredAsmInfo->iRequiredSize,
 			(DWORD)virAddr+ptAsmCodeInfo->nOpCodeSize);
-	DWORD WrittenLen = 0;
 	// 把构建好的代码写入刚刚申请的空间中
 	WriteProcessMemory(hProcess, (LPVOID)virAddr, exeCode, nCodeSize, &WrittenLen);
 	free(exeCode);
