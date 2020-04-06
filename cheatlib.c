@@ -1,9 +1,17 @@
 #include <windows.h>
 #include <assert.h>
 #include <string.h>
+#include <Psapi.h>
 #include "beaengine/BeaEngine.h"
 #include "keystone/keystone.h"
 #include "cheatlib.h"
+
+typedef enum _THREADINFOCLASS { ThreadHideFromDebugger = 17 } THREADINFOCLASS;
+
+typedef NTSTATUS (*NtSetInformationThreadPtr)(HANDLE threadHandle,
+		THREADINFOCLASS threadInformationClass,
+		PVOID threadInformation,
+		ULONG threadInformationLength);
 
 HANDLE GetHandleByTitle(const char *pszTitle)
 {
@@ -31,13 +39,20 @@ PDllInjectionInfo DllInjection(HANDLE hProcess, const char *pszLibFile)
 	if (n == 0)
 		return NULL;
 	// 从Kernel32.dll获取LoadLibraryA地址
-	PTHREAD_START_ROUTINE pfnThreadRtn = (PTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandle(TEXT("Kernel32")), "LoadLibraryA");
+	PTHREAD_START_ROUTINE pfnThreadRtn =
+		(PTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandle(TEXT("Kernel32")), "LoadLibraryA");
 	if (pfnThreadRtn == NULL)
 		return NULL;
 	// 创建远程线程调用 LoadLibraryA(DLLPathname)
 	HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, pfnThreadRtn, pszLibFileRemote, 0, NULL);
 	if (hThread == NULL)
 		return NULL;
+	NtSetInformationThreadPtr NtSetInformationThread =
+		(NtSetInformationThreadPtr)GetProcAddress(GetModuleHandle(TEXT("ntdll.dll")), "NtSetInformationThread");
+	// 取消远程线程的调试后运行该线程
+	NtSetInformationThread(hThread, ThreadHideFromDebugger, 0, 0);
+	SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
+	ResumeThread(hThread);
 	PDllInjectionInfo ptInfo = (PDllInjectionInfo)malloc(sizeof(DllInjectionInfo));
 	ptInfo->hProcess = hProcess;
 	ptInfo->hThread = hThread;
