@@ -1,0 +1,6 @@
+[submodule "beaengine"]
+	path = beaengine
+	url = https://github.com/BeaEngine/beaengine.git
+[submodule "keystone"]
+	path = keystone
+	url = https://github.com/keystone-engine/keystone

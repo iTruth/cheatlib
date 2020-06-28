@@ -2,8 +2,8 @@
 #include <assert.h>
 #include <string.h>
 #include <Psapi.h>
-#include "beaengine/BeaEngine.h"
-#include "keystone/keystone.h"
+#include "beaengine/include/beaengine/BeaEngine.h"
+#include "keystone/include/keystone/keystone.h"
 #include "cheatlib.h"
 
 typedef enum _THREADINFOCLASS { ThreadHideFromDebugger = 17 } THREADINFOCLASS;

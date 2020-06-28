@@ -7,3 +7,5 @@
 库主体: cheatlib.dll  
 头文件: cheatlib.h  
 依赖库: keystone.dll BeaEngine_d_l.dll  
+
+编译: 先编译keystone和beaengine, 将编译出来的dll拷贝到cheatlib下运行make
