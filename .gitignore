@@ -15,7 +15,7 @@
 
 # CMake
 CMakeFiles/
-CMakeCache.txt\
+CMakeCache.txt
 *.cmake
 
 # Build results
