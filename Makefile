@@ -11,7 +11,7 @@ TARGET_NAME := cheatlib
 dlls := BeaEngine_d_l.dll keystone.dll
 
 #main target
-$(TARGET_NAME).dll: $(dlls)
+$(TARGET_NAME).dll: $(dlls) $(TARGET_NAME).c
 	$(CC) $(CFLAGES) $^ -o $@ -I beaengine/include/
 
 .PHONY: clean
