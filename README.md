@@ -1,5 +1,6 @@
 # cheatlib
 为外挂作者准备的常用函数库(DLL injection & Code injection & Function Hook)  
+注意: cheatlib所有模块均需要cheatlib_utils.h支持
 
 ## cheatlib主模块(cheatlib.h)
 头文件: cheatlib.h  
@@ -94,17 +95,31 @@ void FuncUnhook(PFuncHookInfo ptInfo)
  * 参数:	PFuncHookInfo ptInfo	- FuncHook函数的返回值
  *	...	                - 函数参数 */
 #define CallOrigFunc(ptInfo, ...)
+
+/* 说明:	在Hook函数里调用源函数
+ * 注意:	函数参数必须一致,否则会出现栈损
+ *	只支持返回结构体的函数,否则会出现栈损
+ *	如果结构体内的元素数量小于或等于2的话那么元素将分别保存在eax和edx里
+ *	这个情况下不适合使用此宏,而是使用CallOrigFunc宏
+ * 参数:	PFuncHookInfo ptInfo	- FuncHook函数的返回值
+ *	void *pSaveStructAddr	- 函数返回的结构体保存位置
+ *	...	                - 函数参数 */
+#define CallOrigFunc_RetStruct(ptInfo, pSaveStructAddr, ...)
 ```
 > // 此变量一般是全局的   
 > PFuncHookInfo ptFuncHookInfo;   
 > // 将0x401510处的函数替换为定义好的test函数,一般在DllMain中调用   
 > ptFuncHookInfo = FuncHook((LPVOID)0x401510, (LPVOID)test);   
 > // 在Hook函数中调用源函数, 后面的参数需要一致. 此函数不支持返回结构体的函数   
-> CallOrigFunc(ptFuncHookInfo, str);   
+> CallOrigFunc(ptFuncHookInfo, paramer1, paramer2, ... ,paramerN);   
 > // 获取源函数的返回值(调用完CallOrigFunc后)   
 > int ret = ptFuncHookInfo->last_return_value;   
-> // 撤销函数钩子并释放ptFuncHookInfo所占用的资源
-> FuncUnhook(ptFuncHookInfo);
+> // 撤销函数钩子并释放ptFuncHookInfo所占用的资源   
+> FuncUnhook(ptFuncHookInfo);   
+> // 在Hook函数中调用源函数, 那个函数的返回值是一个类似于st的结构体   
+> typedef struct _st{int a; int b; int c;} st, *pst;   
+> st s;   
+> CallOrigFunc_RetStruct(ptInfo, &s, paramer1, paramer2, ... ,paramerN)   
 
 ## 编译
 ### 环境

@@ -24,7 +24,7 @@
 #include "beaengine/include/beaengine/BeaEngine.h"
 #include "keystone/include/keystone/keystone.h"
 #include "cheatlib.h"
-#include "util.h"
+#include "cheatlib_utils.h"
 
 typedef enum _THREADINFOCLASS { ThreadHideFromDebugger = 17 } THREADINFOCLASS;
 

@@ -23,7 +23,7 @@
 
 #include <windows.h>
 #include <assert.h>
-#include "util.h"
+#include "cheatlib_utils.h"
 
 typedef struct _FuncHookInfo{
 	LPVOID pOrigFuncAddr;	// 代码源地址
@@ -77,19 +77,46 @@ void FuncUnhook(PFuncHookInfo ptInfo)
 	DWORD oldProtect;\
 	VirtualProtect(ptInfo->pOrigFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);\
 	memcpy(ptInfo->pOrigFuncAddr, ptInfo->pbOpCode, 5);\
-	func_caller(ptInfo->pOrigFuncAddr, __VA_ARGS__);\
+	cheatlib_func_caller(ptInfo->pOrigFuncAddr, __VA_ARGS__);\
 	__asm__ __volatile__("movl %%eax, %0;"::"m"(ptInfo->last_return_value): "eax");\
 	JmpBuilder((BYTE*)ptInfo->pOrigFuncAddr, (DWORD)ptInfo->pHookFuncAddr, (DWORD)ptInfo->pOrigFuncAddr);\
 	VirtualProtect(ptInfo->pOrigFuncAddr, 5, PAGE_EXECUTE, &oldProtect);\
 } while(0);
 
-void __attribute__((naked)) func_caller(LPVOID pOrigFuncAddr, ...)
+void __attribute__((naked)) cheatlib_func_caller(LPVOID pOrigFuncAddr, ...)
 {
 	__asm__ __volatile__(
 			"popl %%eax;"
 			"popl %%ebx;"
 			"pushl %%eax;"
 			"jmp *%%ebx;"
+			:);
+}
+
+/* 说明:	在Hook函数里调用源函数
+ * 注意:	函数参数必须一致,否则会出现栈损
+ *			只支持返回结构体的函数,否则会出现栈损
+ * 参数:	PFuncHookInfo ptInfo	- FuncHook函数的返回值
+ *			void *pSaveStructAddr	- 函数返回的结构体保存位置
+ *			...						- 函数参数 */
+#define CallOrigFunc_RetStruct(ptInfo, pSaveStructAddr, ...) do{\
+	DWORD oldProtect;\
+	VirtualProtect(ptInfo->pOrigFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);\
+	memcpy(ptInfo->pOrigFuncAddr, ptInfo->pbOpCode, 5);\
+	cheatlib_ret_struct_func_caller(pSaveStructAddr, ptInfo->pOrigFuncAddr, __VA_ARGS__);\
+	JmpBuilder((BYTE*)ptInfo->pOrigFuncAddr, (DWORD)ptInfo->pHookFuncAddr, (DWORD)ptInfo->pOrigFuncAddr);\
+	VirtualProtect(ptInfo->pOrigFuncAddr, 5, PAGE_EXECUTE, &oldProtect);\
+} while(0);
+
+void __attribute__((naked)) cheatlib_ret_struct_func_caller(LPVOID pStructAddr, LPVOID pOrigFuncAddr, ...)
+{
+	__asm__ __volatile__(
+			"popl %%eax;"
+			"popl %%ebx;"
+			"popl %%ecx;"
+			"pushl %%ebx;"
+			"pushl %%eax;"
+			"jmp *%%ecx;"
 			:);
 }
 
