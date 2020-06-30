@@ -18,8 +18,8 @@
     USA
 */
 
-#ifndef _H_UTIL
-#define _H_UTIL
+#ifndef _H_CHEATLIB_UTILS
+#define _H_CHEATLIB_UTILS
 
 #include <windows.h>
 #include <assert.h>
