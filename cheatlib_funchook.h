@@ -32,12 +32,12 @@ typedef struct _FuncHookInfo{
 	int last_return_value;	// CallOrigFunc源函数返回值(eax)
 } FuncHookInfo, *PFuncHookInfo;
 
-/* 说明:	将pOrigAddr处的函数直接替换为pHookAddr处的函数执行
- * 注意:	pOrigAddr和pHookAddr处的函数定义必须一致
- *			此函数一般写在dll中,注入到程序中将程序中的函数替换为dll中的
- * 参数:	pOrigAddr	- 源函数地址
- *			pHookAddr	- hook函数地址
- * 返回值:	PFuncHookInfo */
+/* 说明:  将pOrigAddr处的函数直接替换为pHookAddr处的函数执行
+ * 注意:  pOrigAddr和pHookAddr处的函数定义必须一致
+ *        此函数一般写在dll中,注入到程序中将程序中的函数替换为dll中的
+ * 参数:  pOrigAddr - 源函数地址
+ *        pHookAddr - hook函数地址
+ * 返回值:PFuncHookInfo */
 PFuncHookInfo FuncHook(LPVOID pOrigAddr, LPVOID pHookAddr)
 {
 	DWORD oldProtect;
@@ -54,9 +54,9 @@ PFuncHookInfo FuncHook(LPVOID pOrigAddr, LPVOID pHookAddr)
 	return ptInfo;
 }
 
-/* 说明:	撤销函数钩子
- * 参数:	ptInfo	- FuncHook函数返回值
- * 返回值:	void */
+/* 说明:    撤销函数钩子
+ * 参数:    ptInfo  - FuncHook函数返回值
+ * 返回值:  void */
 void FuncUnhook(PFuncHookInfo ptInfo)
 {
 	assert(ptInfo != NULL && ptInfo->pbOpCode != NULL);
@@ -68,11 +68,11 @@ void FuncUnhook(PFuncHookInfo ptInfo)
 	free(ptInfo);
 }
 
-/* 说明:	在Hook函数里调用源函数
- * 注意:	函数参数必须一致,否则会出现栈损
- *			不支持返回结构体的函数,否则可能会覆盖栈内的合法数据
- * 参数:	PFuncHookInfo ptInfo	- FuncHook函数的返回值
- *			...						- 函数参数 */
+/* 说明:  在Hook函数里调用源函数
+ * 注意:  函数参数必须一致,否则会出现栈损
+ *        不支持返回结构体的函数,否则可能会覆盖栈内的合法数据
+ * 参数:  PFuncHookInfo ptInfo  - FuncHook函数的返回值
+ *        ...                   - 函数参数 */
 #define CallOrigFunc(ptInfo, ...) do{\
 	DWORD oldProtect;\
 	VirtualProtect(ptInfo->pOrigFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);\
@@ -93,12 +93,14 @@ void __attribute__((naked)) cheatlib_func_caller(LPVOID pOrigFuncAddr, ...)
 			:);
 }
 
-/* 说明:	在Hook函数里调用源函数
- * 注意:	函数参数必须一致,否则会出现栈损
- *			只支持返回结构体的函数,否则会出现栈损
- * 参数:	PFuncHookInfo ptInfo	- FuncHook函数的返回值
- *			void *pSaveStructAddr	- 函数返回的结构体保存位置
- *			...						- 函数参数 */
+/* 说明:  在Hook函数里调用源函数
+ * 注意:  函数参数必须一致,否则会出现栈损
+ *        只支持返回结构体的函数,否则会出现栈损
+ *        如果结构体内的元素数量小于或等于2的话那么元素将分别保存在eax和edx里
+ *        这个情况下不适合使用此宏,而是使用CallOrigFunc宏
+ * 参数:  PFuncHookInfo ptInfo  - FuncHook函数的返回值
+ *        void *pSaveStructAddr - 函数返回的结构体保存位置
+ *        ...                 - 函数参数 */
 #define CallOrigFunc_RetStruct(ptInfo, pSaveStructAddr, ...) do{\
 	DWORD oldProtect;\
 	VirtualProtect(ptInfo->pOrigFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);\
