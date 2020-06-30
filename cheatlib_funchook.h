@@ -77,7 +77,6 @@ void FuncUnhook(PFuncHookInfo ptInfo)
 	DWORD oldProtect;\
 	VirtualProtect(ptInfo->pOrigFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);\
 	memcpy(ptInfo->pOrigFuncAddr, ptInfo->pbOpCode, 5);\
-	DWORD retAddr = 0;\
 	func_caller(ptInfo->pOrigFuncAddr, __VA_ARGS__);\
 	__asm__ __volatile__("movl %%eax, %0;"::"m"(ptInfo->last_return_value): "eax");\
 	JmpBuilder((BYTE*)ptInfo->pOrigFuncAddr, (DWORD)ptInfo->pHookFuncAddr, (DWORD)ptInfo->pOrigFuncAddr);\
