@@ -1,0 +1,2 @@
+GCC -std=c11 -Wall -D NDEBUG target.c -o target.exe -m32
+GCC -std=c11 -Wall -D NDEBUG -static -shared inject_dll_test.c cheatlib.lib capstone.lib keystone.lib -o inject_dll_test.dll -m32
