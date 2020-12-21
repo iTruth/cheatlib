@@ -1,5 +1,5 @@
 /*
-    cheatlib main moudle
+    iat hook moudle
     Copyright (C) 2020  iTruth
 
     This library is free software; you can redistribute it and/or
@@ -18,18 +18,15 @@
     USA
 */
 
+#ifndef IAT_HOOK_H
+#define IAT_HOOK_H
+
 #include <windows.h>
+
 #include "cheatlib.h"
 
-HANDLE GetHandleByTitle(LPCSTR pszTitle)
-{
-	assert(pszTitle!=NULL);
-	HWND hWnd = FindWindow(NULL, pszTitle);
-	if(hWnd == 0){
-		return NULL;
-	}
-	DWORD dwPid = 0;
-	GetWindowThreadProcessId(hWnd, &dwPid);
-	return OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
-}
+PIATHookInfo IATHook(LPCSTR lpModuleName, LPCSTR lpFuncName, LPVOID pHookFuncAddr);
+void IATUnhook(PIATHookInfo ptInfo);
+
+#endif
 

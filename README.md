@@ -6,7 +6,7 @@
 **注意: 如果你编译目标是x64的话需要定义CHEATLIB_TARGET_X64宏, x32不用**  
 
 完整的功能测试代码见: [test](https://github.com/iTruth/cheatlib/tree/master/test)  
-完整的函数说明见: [cheatlib.h](https://github.com/iTruth/cheatlib/blob/master/cheatlib.h)  
+完整的函数说明见: [doc](https://github.com/iTruth/cheatlib/blob/master/doc)  
 
 ### 优势
 * 完全支持x32和x64
@@ -29,12 +29,6 @@ x64下的跳转:
 > ret  
 
 共计14字节  
-
-### 使用方法
-将`cheatlib.h` `cheatlib.dll` `keystone.dll` `capstone.dll`复制到你的项目目录下  
-编译32位运行`gcc cheatlib.dll you_program.c -o you_program.exe -m32`  
-编译64位运行`gcc cheatlib.dll you_program.c -o you_program.exe -m64 -D CHEATLIB_TARGET_X64`  
-实例代码见: [test](https://github.com/iTruth/cheatlib/tree/master/test)  
 
 ## 编译
 ### 环境

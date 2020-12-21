@@ -1,5 +1,5 @@
 /*
-    cheatlib main moudle
+    dll injection moudle header
     Copyright (C) 2020  iTruth
 
     This library is free software; you can redistribute it and/or
@@ -18,18 +18,16 @@
     USA
 */
 
+#ifndef DLL_INJECTION_H
+#define DLL_INJECTION_H
+
 #include <windows.h>
+
 #include "cheatlib.h"
 
-HANDLE GetHandleByTitle(LPCSTR pszTitle)
-{
-	assert(pszTitle!=NULL);
-	HWND hWnd = FindWindow(NULL, pszTitle);
-	if(hWnd == 0){
-		return NULL;
-	}
-	DWORD dwPid = 0;
-	GetWindowThreadProcessId(hWnd, &dwPid);
-	return OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
-}
+PDllInjectionInfo DllInjection(HANDLE hProcess, LPCSTR pszLibFile);
+void DllOutjection(PDllInjectionInfo ptInfo);
+
+#endif
+
 

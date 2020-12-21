@@ -82,80 +82,17 @@ typedef struct _IATHookInfo{
 	LPVOID pFuncAddress;
 } IATHookInfo, *PIATHookInfo;
 
-#ifdef CHEATLIB_TARGET_X64
-void JmpBuilder_x64(BYTE *pCmdOutput, LPVOID dwTargetAddr);
-#else
-void IntToByte(int i, BYTE* bytes);
-void JmpBuilder(BYTE *pCmdOutput, LPVOID dwTargetAddr, LPVOID dwCurrentAddr);
-#endif
+#include "code_injection.h"
+#include "dll_injection.h"
+#include "func_hook.h"
+#include "iat_hook.h"
+#include "utility.h"
 
 /* 说明:    根据窗口标题获取进程句柄
  * 参数:    pszTitle  - 窗口标题
  * 返回值:  成功找到该窗口返回进程句柄
  *          没有找到该窗口返回NULL */
 HANDLE GetHandleByTitle(LPCSTR pszTitle);
-
-/* 说明:    从IAT获取函数地址
- * 参数:    lpModuleName    - 模块名称,如果是NULL则是.exe模块
- *          lpFuncName      - 函数名
- * 返回值:  IAT内存放指定函数的地址内存指针 */
-LPVOID GetFuncFromIAT(LPCSTR lpModuleName, LPCSTR lpFuncName);
-
-/* 说明:    向目标进程注入dll
- * 参数:    hProcess    - 进程句柄
- *          pszLibFile  - dll文件名称
- * 返回值:  PDllInjectionInfo */
-PDllInjectionInfo DllInjection(HANDLE hProcess, LPCSTR pszLibFile);
-
-/* 说明:    等待dll执行完毕并注出dll
- * 参数:    PDllInjectionInfo - DllInjection函数的返回值
- * 返回值:  void */
-void DllOutjection(PDllInjectionInfo ptInfo);
-
-/* 说明:  代码注入,实现的是CheatEngine(CE)的代码注入
- * 注意:  在x32下实现跳转的指令长度是5字节,在x64下是14字节.
- *        跳转指令所覆盖的指令不会拷贝到代码执行空间内执行.
- * 参数:  hProcess    - 进程句柄
- *        pAddress    - 待替换指令的地址
- *        pszAsmCode  - 汇编指令,以分号或回车分隔.例如xor eax,eax;mov ecx,9
- *        此参数也可以是空字符串或NULL,这样函数将会用nop填充
- *        pAddress指定的汇编指令
- * 返回值:成功执行返回PCodeInjectionInfo
- *        在汇编引擎初始化失败或pszAsmCode有错误的情况下返回NULL */
-PCodeInjectionInfo CodeInjection(HANDLE hProcess, LPVOID pAddress, LPCSTR pszAsmCode);
-
-/* 说明:  代码注出 - 恢复注入的代码
- * 参数:  PCodeInjectionInfo - CodeInjection函数的返回值
- * 返回值:void */
-void CodeOutjection(PCodeInjectionInfo ptInfo);
-
-/* 说明:  将pOrigAddr处的函数直接替换为pHookFuncAddr处的函数执行
- * 注意:  pOrigAddr和pHookFuncAddr处的函数定义必须一致
- *        此函数一般写在dll中,注入到程序中将程序中的函数替换为dll中的
- * 参数:  pOrigAddr - 源函数地址
- *        pHookFuncAddr - hook函数地址
- * 返回值:PFuncHookInfo */
-PFuncHookInfo FuncHook(LPVOID pOrigAddr, LPVOID pHookFuncAddr);
-
-
-/* 说明:    撤销函数钩子
- * 参数:    ptInfo  - FuncHook函数返回值
- * 返回值:  void */
-void FuncUnhook(PFuncHookInfo ptInfo);
-
-/* 说明:  Hook IAT 函数
- * 注意:  pFuncName和pHookFuncAddr处的函数定义必须一致
- *        此函数一般写在dll中,注入到程序中将程序中的函数替换为dll中的
- * 参数:  lpModuleName  - 模块名称,如果是NULL则是.exe模块
- *        pFuncName     - IAT内函数名称
- *        pHookFuncAddr - hook函数地址
- * 返回值:PIATHookInfo */
-PIATHookInfo IATHook(LPCSTR lpModuleName, LPCSTR lpFuncName, LPVOID pHookFuncAddr);
-
-/* 说明:    撤销导入表钩子
- * 参数:    ptInfo  - IATHook函数返回值
- * 返回值:  void */
-void IATUnhook(PIATHookInfo ptInfo);
 
 #ifdef CHEATLIB_TARGET_X64
 /* 说明:  在Hook函数里调用源函数

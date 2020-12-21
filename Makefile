@@ -9,24 +9,26 @@ RM := del
 TARGET_NAME := cheatlib
 
 dlls := capstone.dll keystone.dll
+srcs := $(wildcard *.c)
+objs := $(patsubst %.c,%.o, $(srcs))
 
-x32: $(dlls) $(TARGET_NAME).c
-	$(CC) $(CFLAGES) -shared -m32 $^ -o $(TARGET_NAME).dll
+x32: $(dlls) $(srcs)
+	$(CC) $(CFLAGES) -c -m32 $(srcs)
+	$(CC) $(CFLAGES) -shared -m32 $(objs) $(dlls) -o $(TARGET_NAME).dll
 
-x64: $(dlls) $(TARGET_NAME).c
-	$(CC) $(CFLAGES) -shared -m64 $^ -o $(TARGET_NAME).dll -D CHEATLIB_TARGET_X64
+x64: $(dlls) $(srcs)
+	$(CC) $(CFLAGES) -c -m64 $(srcs) -D CHEATLIB_TARGET_X64
+	$(CC) $(CFLAGES) -shared -m64 $(objs) $(dlls) -o $(TARGET_NAME).dll -D CHEATLIB_TARGET_X64
 
-x32static: $(libs) $(TARGET_NAME).c
-	$(CC) $(CFLAGES) -static -m32 $(TARGET_NAME).c -c
-	$(AR) r cheatlib.lib cheatlib.o
+x32s: $(srcs)
+	$(CC) $(CFLAGES) -static -c -m32 $(srcs)
+	$(AR) r cheatlib.lib $(objs)
 
-
-x64static: $(libs) $(TARGET_NAME).c
-	$(CC) $(CFLAGES) -static -m64 $(TARGET_NAME).c -c -D CHEATLIB_TARGET_X64
-	$(AR) r cheatlib.lib cheatlib.o
+x64s: $(srcs)
+	$(CC) $(CFLAGES) -static -c -m64 $(srcs) -D CHEATLIB_TARGET_X64
+	$(AR) r cheatlib.lib $(objs)
 
 .PHONY: clean
 clean:
 	-$(RM) *.o
-	-$(RM) *.d
 
