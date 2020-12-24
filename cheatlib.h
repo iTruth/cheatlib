@@ -70,7 +70,7 @@ typedef struct _FuncHookInfo{
 	BYTE *pbOpCode;             // 机器码用于恢复现场
 #ifdef CHEATLIB_TARGET_X64
 	int64_t last_return_value;      // CallOrigFunc源函数返回值(rax)
-	int64_t last_return_2nd_value;  // 在返回值是有两个整型值的结构体时这里保存第二个元素(edx)
+	int64_t last_return_2nd_value;  // 在返回值是有两个整型值的结构体时这里保存第二个元素(rdx)
 #else
 	int32_t last_return_value;      // CallOrigFunc源函数返回值(eax)
 	int32_t last_return_2nd_value;  // 在返回值是有两个整型值的结构体时这里保存第二个元素(edx)
@@ -78,8 +78,8 @@ typedef struct _FuncHookInfo{
 } FuncHookInfo, *PFuncHookInfo;
 
 typedef struct _IATHookInfo{
-	LPVOID pIATAddress;
-	LPVOID pFuncAddress;
+	LPVOID pIATAddress;    // IAT地址
+	LPVOID pFuncAddress;   // 函数地址
 } IATHookInfo, *PIATHookInfo;
 
 #include "code_injection.h"

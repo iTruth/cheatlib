@@ -167,7 +167,7 @@ typedef struct _struct_a{
 ...
 
 struct_a s;
-return CallOrigFunc_RetStruct(func_hook_info, &s, 1, 2, 3);
+return *CallOrigFunc_RetStruct(func_hook_info, &s, 1, 2, 3);
 ```
 
 # x32 API
@@ -202,7 +202,7 @@ typedef struct _struct_a{
 ...
 
 struct_a s;
-return CallOrigFunc_RetStruct(func_hook_info, &s, 1, 2, 3);
+return *CallOrigFunc_RetStruct(func_hook_info, &s, 1, 2, 3);
 ```
 
 # 结构体
@@ -226,7 +226,7 @@ typedef struct _FuncHookInfo{
 	BYTE *pbOpCode;             // 机器码用于恢复现场
 #ifdef CHEATLIB_TARGET_X64
 	int64_t last_return_value;      // CallOrigFunc源函数返回值(rax)
-	int64_t last_return_2nd_value;  // 在返回值是有两个整型值的结构体时这里保存第二个元素(edx)
+	int64_t last_return_2nd_value;  // 在返回值是有两个整型值的结构体时这里保存第二个元素(rdx)
 #else
 	int32_t last_return_value;      // CallOrigFunc源函数返回值(eax)
 	int32_t last_return_2nd_value;  // 在返回值是有两个整型值的结构体时这里保存第二个元素(edx)
