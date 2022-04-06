@@ -1,5 +1,5 @@
 # cheatlib
-为外挂作者准备的常用函数库(DLL injection & Code injection & Function Hook & IAT Hook)  
+DLL injection & Code injection & Function Hook & IAT Hook  
 头文件: cheatlib.h  
 库主体: cheatlib.dll  
 依赖库: keystone.dll capstone.dll  
